@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/sdk_ab_recycle_inner_view_loading"
+	android:layout_width="match_parent"
+	android:layout_height="60dp"
+	android:gravity="center"
+	android:orientation="horizontal" >
+	
+	<ProgressBar
+		android:layout_width="20dp"
+		android:layout_height="20dp"
+		style="?android:attr/progressBarStyleSmall" />
+	
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="10dp"
+		android:textSize="12sp"
+		android:textColor="#999999"
+		android:text="正在加载更多"/>
+
+</LinearLayout>
