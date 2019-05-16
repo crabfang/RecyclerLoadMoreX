@@ -17,6 +17,7 @@ import com.cabe.lib.ui.loadmore.R;
  * 作者：沈建芳 on 2019-05-16 14:45
  */
 public class LoadMoreRecyclerView extends RecyclerView {
+    private OnLoadViewListener onLoadViewListener;
     private RecyclerViewScrollCallback scrollCallback;
     private InnerAdapter innerAdapter = new InnerAdapter();
     public LoadMoreRecyclerView(Context context) {
@@ -55,6 +56,10 @@ public class LoadMoreRecyclerView extends RecyclerView {
                 }
             }
         });
+    }
+
+    public void setOnLoadViewListener(OnLoadViewListener onLoadViewListener) {
+        this.onLoadViewListener = onLoadViewListener;
     }
 
     public void setScrollCallback(RecyclerViewScrollCallback scrollCallback) {
@@ -156,7 +161,13 @@ public class LoadMoreRecyclerView extends RecyclerView {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if(viewType == Integer.MIN_VALUE) {
-                View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.load_more_widget_bottom_loading_view, parent, false);
+                View itemView = null;
+                if(onLoadViewListener != null) {
+                    itemView = onLoadViewListener.onCreateLoadView(parent);
+                }
+                if(itemView == null) {
+                    itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.load_more_widget_bottom_loading_view, parent, false);
+                }
                 return new LoadViewHolder(itemView);
             }
             return realAdapter.onCreateViewHolder(parent, viewType);
@@ -171,6 +182,9 @@ public class LoadMoreRecyclerView extends RecyclerView {
                 if(params instanceof StaggeredGridLayoutManager.LayoutParams) {
                     ((StaggeredGridLayoutManager.LayoutParams) params).setFullSpan(true);
                 }
+                if(onLoadViewListener != null) {
+                    onLoadViewListener.onLoadViewBind(holder.itemView);
+                }
             }
         }
     }
@@ -183,5 +197,10 @@ public class LoadMoreRecyclerView extends RecyclerView {
 
     public interface RecyclerViewScrollCallback {
         void onScrollToBottom();
+    }
+
+    public interface OnLoadViewListener {
+        View onCreateLoadView(ViewGroup parent);
+        void onLoadViewBind(View loadView);
     }
 }
