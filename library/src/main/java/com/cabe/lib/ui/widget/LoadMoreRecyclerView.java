@@ -127,11 +127,11 @@ public class LoadMoreRecyclerView extends RecyclerView {
         private boolean flagEnd;
         private RecyclerView.Adapter<RecyclerView.ViewHolder> realAdapter;
 
-        public void setScrollEnd(boolean flagEnd) {
+        private void setScrollEnd(boolean flagEnd) {
             this.flagEnd = flagEnd;
         }
 
-        public void setRealAdapter(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
+        private void setRealAdapter(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
             realAdapter = adapter;
             notifyDataSetChanged();
         }

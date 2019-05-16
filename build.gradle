@@ -2,21 +2,23 @@
 
 buildscript {
     repositories {
-        google()
+        maven {
+            url 'https://maven.google.com'
+        }
         jcenter()
-        
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${GRADLE_VERSION}"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${KOTLIN_VERSION}"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath 'com.novoda:bintray-release:0.9.1'
     }
 }
 
 allprojects {
     repositories {
-        google()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
         jcenter()
     }
 }
