@@ -17,6 +17,7 @@ dependencies {
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			tools:listitem="@layout/item_layout_view"
+			app:autoLoad="false|true"
 			app:spanCount="3"
 			app:layoutManager="android.support.v7.widget.GridLayoutManager"/>
 

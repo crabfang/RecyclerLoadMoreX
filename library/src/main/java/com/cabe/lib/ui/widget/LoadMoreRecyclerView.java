@@ -1,6 +1,7 @@
 package com.cabe.lib.ui.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,6 +18,8 @@ import com.cabe.lib.ui.loadmore.R;
  * 作者：沈建芳 on 2019-05-16 14:45
  */
 public class LoadMoreRecyclerView extends RecyclerView {
+    private boolean autoLoad = true;
+    private boolean flagEnd = false;
     private OnLoadViewListener onLoadViewListener;
     private RecyclerViewScrollCallback scrollCallback;
     private InnerAdapter innerAdapter = new InnerAdapter();
@@ -30,16 +33,20 @@ public class LoadMoreRecyclerView extends RecyclerView {
 
     public LoadMoreRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
+        init(context, attrs, defStyle);
     }
 
-    private void init() {
+    private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadMoreRecyclerView, defStyleAttr, 0);
+        autoLoad = a.getBoolean(R.styleable.LoadMoreRecyclerView_autoLoad, true);
+        a.recycle();
+
         LayoutManager layoutManager = getLayoutManager();
         if(layoutManager instanceof GridLayoutManager) {
             ((GridLayoutManager) layoutManager).setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    if(!innerAdapter.flagEnd && position == innerAdapter.getItemCount() - 1) {
+                    if(!flagEnd && position == innerAdapter.getItemCount() - 1) {
                         return ((GridLayoutManager) layoutManager).getSpanCount();
                     }
                     return 1;
@@ -49,7 +56,7 @@ public class LoadMoreRecyclerView extends RecyclerView {
         addOnScrollListener(new OnRcvScrollListener() {
             @Override
             protected void scrollStop() {
-                if(!innerAdapter.flagEnd && isScrollBottom) {
+                if(autoLoad && !flagEnd && isScrollBottom) {
                     if(scrollCallback != null) {
                         scrollCallback.onScrollToBottom();
                     }
@@ -66,8 +73,12 @@ public class LoadMoreRecyclerView extends RecyclerView {
         this.scrollCallback = scrollCallback;
     }
 
+    public void setAutoLoad(boolean autoLoad) {
+        this.autoLoad = autoLoad;
+    }
+
     public void setScrollEnd(boolean flagEnd) {
-        innerAdapter.setScrollEnd(flagEnd);
+        this.flagEnd = flagEnd;
     }
 
     private void judgeDataFullPage() {
@@ -93,7 +104,7 @@ public class LoadMoreRecyclerView extends RecyclerView {
         RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
-                innerAdapter.flagEnd = false;
+                flagEnd = false;
                 innerAdapter.notifyDataSetChanged();
                 judgeDataFullPage();
             }
@@ -129,12 +140,7 @@ public class LoadMoreRecyclerView extends RecyclerView {
     }
 
     private class InnerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        private boolean flagEnd;
         private RecyclerView.Adapter<RecyclerView.ViewHolder> realAdapter;
-
-        private void setScrollEnd(boolean flagEnd) {
-            this.flagEnd = flagEnd;
-        }
 
         private void setRealAdapter(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
             realAdapter = adapter;
@@ -147,7 +153,7 @@ public class LoadMoreRecyclerView extends RecyclerView {
 
         @Override
         public int getItemCount() {
-            if(flagEnd) {
+            if(!autoLoad || flagEnd) {
                 return getRealCount();
             }
             return getRealCount() == 0 ? 0 : getRealCount() + 1;
