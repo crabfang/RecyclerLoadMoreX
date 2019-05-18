@@ -2,24 +2,21 @@
 
 buildscript {
     repositories {
-        maven {
-            url 'https://maven.google.com'
-        }
+        maven { url 'http://nexus.51.nb:8081/nexus/content/repositories/release/' }
+        google()
         jcenter()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${GRADLE_VERSION}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${KOTLIN_VERSION}"
         classpath 'com.novoda:bintray-release:0.9.1'
+        classpath "com.u51.android.plugin:gradle-nexus-plugin:1.1.1"
     }
 }
 
 allprojects {
     repositories {
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
+        google()
         jcenter()
     }
 }
