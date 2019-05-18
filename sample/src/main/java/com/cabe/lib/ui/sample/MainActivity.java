@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             dataList.add("appendData#" + pageIndex + "_" + i);
         }
         mMyAdapter.appendDataList(dataList);
-        if(pageIndex > 3) {
+        if(pageIndex > 2) {
             recyclerView.setScrollEnd(true);
         }
     }

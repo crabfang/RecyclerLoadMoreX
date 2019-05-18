@@ -8,7 +8,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -18,8 +17,13 @@ import com.cabe.lib.ui.loadmore.R;
  * 作者：沈建芳 on 2019-05-16 14:45
  */
 public class LoadMoreRecyclerView extends RecyclerView {
+    private final int VIEW_TYPE_LOAD = Integer.MIN_VALUE + 1;
+    private final int VIEW_TYPE_END = Integer.MIN_VALUE + 2;
+
+    private boolean showEnd = true;
     private boolean autoLoad = true;
     private boolean flagEnd = false;
+    private OnEndViewListener onEndViewListener;
     private OnLoadViewListener onLoadViewListener;
     private RecyclerViewScrollCallback scrollCallback;
     private InnerAdapter innerAdapter = new InnerAdapter();
@@ -38,6 +42,7 @@ public class LoadMoreRecyclerView extends RecyclerView {
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadMoreRecyclerView, defStyleAttr, 0);
+        showEnd = a.getBoolean(R.styleable.LoadMoreRecyclerView_showEnd, true);
         autoLoad = a.getBoolean(R.styleable.LoadMoreRecyclerView_autoLoad, true);
         a.recycle();
 
@@ -65,6 +70,10 @@ public class LoadMoreRecyclerView extends RecyclerView {
         });
     }
 
+    public void setOnEndViewListener(OnEndViewListener onEndViewListener) {
+        this.onEndViewListener = onEndViewListener;
+    }
+
     public void setOnLoadViewListener(OnLoadViewListener onLoadViewListener) {
         this.onLoadViewListener = onLoadViewListener;
     }
@@ -75,6 +84,10 @@ public class LoadMoreRecyclerView extends RecyclerView {
 
     public void setAutoLoad(boolean autoLoad) {
         this.autoLoad = autoLoad;
+    }
+
+    public void setShowEnd(boolean showEnd) {
+        this.showEnd = showEnd;
     }
 
     public void setScrollEnd(boolean flagEnd) {
@@ -153,7 +166,7 @@ public class LoadMoreRecyclerView extends RecyclerView {
 
         @Override
         public int getItemCount() {
-            if(!autoLoad || flagEnd) {
+            if(!autoLoad || (flagEnd && !showEnd)) {
                 return getRealCount();
             }
             return getRealCount() == 0 ? 0 : getRealCount() + 1;
@@ -161,20 +174,23 @@ public class LoadMoreRecyclerView extends RecyclerView {
 
         @Override
         public int getItemViewType(int position) {
-            return position >= getRealCount() ? Integer.MIN_VALUE : realAdapter.getItemViewType(position);
+            if(getRealCount() != getItemCount() && position == getRealCount()) {
+                if(!flagEnd) {
+                    return VIEW_TYPE_LOAD;
+                }
+                if(showEnd) {
+                    return VIEW_TYPE_END;
+                }
+            }
+            return realAdapter.getItemViewType(position);
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if(viewType == Integer.MIN_VALUE) {
-                View itemView = null;
-                if(onLoadViewListener != null) {
-                    itemView = onLoadViewListener.onCreateLoadView(parent);
-                }
-                if(itemView == null) {
-                    itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.load_more_widget_bottom_loading_view, parent, false);
-                }
-                return new LoadViewHolder(itemView);
+            if(viewType == VIEW_TYPE_LOAD) {
+                return LoadViewHolder.createHolder(parent, onLoadViewListener);
+            } else if(viewType == VIEW_TYPE_END) {
+                return EndViewHolder.createHolder(parent, onEndViewListener);
             }
             return realAdapter.onCreateViewHolder(parent, viewType);
         }
@@ -184,29 +200,24 @@ public class LoadMoreRecyclerView extends RecyclerView {
             if(position < getRealCount()) {
                 realAdapter.onBindViewHolder(holder, position);
             } else {
-                ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
-                if(params instanceof StaggeredGridLayoutManager.LayoutParams) {
-                    ((StaggeredGridLayoutManager.LayoutParams) params).setFullSpan(true);
-                }
-                if(onLoadViewListener != null) {
-                    onLoadViewListener.onLoadViewBind(holder.itemView);
+                if(holder instanceof LoadViewHolder) {
+                    ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+                    if(params instanceof StaggeredGridLayoutManager.LayoutParams) {
+                        ((StaggeredGridLayoutManager.LayoutParams) params).setFullSpan(true);
+                    }
+                    if(onLoadViewListener != null) {
+                        onLoadViewListener.onLoadViewBind(holder.itemView);
+                    }
+                } else if(holder instanceof EndViewHolder) {
+                    if(onEndViewListener != null) {
+                        onEndViewListener.onEndViewBind(holder.itemView);
+                    }
                 }
             }
         }
     }
 
-    private class LoadViewHolder extends RecyclerView.ViewHolder {
-        LoadViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
     public interface RecyclerViewScrollCallback {
         void onScrollToBottom();
-    }
-
-    public interface OnLoadViewListener {
-        View onCreateLoadView(ViewGroup parent);
-        void onLoadViewBind(View loadView);
     }
 }

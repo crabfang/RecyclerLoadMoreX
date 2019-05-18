@@ -3,6 +3,7 @@
 	
 	<declare-styleable name="LoadMoreRecyclerView">
 		<attr name="autoLoad" format="boolean|reference" />
+		<attr name="showEnd" format="boolean|reference" />
 	</declare-styleable>
 	
 </resources>
