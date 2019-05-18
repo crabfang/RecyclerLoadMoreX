@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cabe.lib.ui.widget.LoadMoreRecyclerView;
+import com.cabe.lib.ui.widget.OnEndViewListener;
+import com.cabe.lib.ui.widget.OnLoadViewListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,31 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mMyAdapter);
         recyclerView.setScrollCallback(() -> recyclerView.postDelayed(() -> appendData(++ curPageIndex), 1000));
         recyclerView.postDelayed(this::loadData, 1000);
+
+        recyclerView.setOnLoadViewListener(new OnLoadViewListener() {
+            @Override
+            public View onCreateLoadView(ViewGroup parent) {
+                return null;
+            }
+            @Override
+            public void onLoadViewBind(View loadView) {
+                loadView.setBackgroundColor(0xFFFF0000);
+                TextView label = (TextView) ((ViewGroup) loadView).getChildAt(1);
+                label.setTextColor(0xFFFFFFFF);
+            }
+        });
+        recyclerView.setOnEndViewListener(new OnEndViewListener() {
+            @Override
+            public View onCreateEndView(ViewGroup parent) {
+                return null;
+            }
+            @Override
+            public void onEndViewBind(View loadView) {
+                loadView.setBackgroundColor(0xFF0000FF);
+                TextView label = (TextView) ((ViewGroup) loadView).getChildAt(0);
+                label.setTextColor(0xFF00FFFF);
+            }
+        });
 
         SwipeRefreshLayout swipeLayout = findViewById(R.id.activity_main_swipe);
         swipeLayout.setOnRefreshListener(() -> recyclerView.postDelayed(() -> {
@@ -54,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             dataList.add("appendData#" + pageIndex + "_" + i);
         }
         mMyAdapter.appendDataList(dataList);
-        if(pageIndex > 2) {
+        if(pageIndex > 1) {
             recyclerView.setScrollEnd(true);
         }
     }
