@@ -117,7 +117,6 @@ public class LoadMoreRecyclerView extends RecyclerView {
         RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
-                flagEnd = false;
                 innerAdapter.notifyDataSetChanged();
                 judgeDataFullPage();
             }
@@ -125,26 +124,41 @@ public class LoadMoreRecyclerView extends RecyclerView {
             public void onItemRangeChanged(int positionStart, int itemCount) {
                 innerAdapter.notifyItemRangeChanged(positionStart, itemCount);
                 judgeDataFullPage();
+                if(itemCount == 0) {
+                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                }
             }
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
                 innerAdapter.notifyItemRangeChanged(positionStart, itemCount, payload);
                 judgeDataFullPage();
+                if(itemCount == 0) {
+                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                }
             }
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 innerAdapter.notifyItemRangeInserted(positionStart, itemCount);
                 judgeDataFullPage();
+                if(itemCount == 0) {
+                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                }
             }
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
                 innerAdapter.notifyItemRangeRemoved(positionStart, itemCount);
                 judgeDataFullPage();
+                if(itemCount == 0) {
+                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                }
             }
             @Override
             public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
                 innerAdapter.notifyItemMoved(fromPosition, toPosition);
                 judgeDataFullPage();
+                if(itemCount == 0) {
+                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                }
             }
         };
         adapter.registerAdapterDataObserver(dataObserver);
