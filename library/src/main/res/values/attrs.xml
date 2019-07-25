@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	
-	<declare-styleable name="LoadMoreRecyclerView">
+	<declare-styleable name="LoadMoreRecyclerViewX">
 		<attr name="autoLoad" format="boolean|reference" />
 		<attr name="showEnd" format="boolean|reference" />
 	</declare-styleable>

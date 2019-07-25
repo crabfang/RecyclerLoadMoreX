@@ -1,27 +1,28 @@
 package com.cabe.lib.ui.sample;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cabe.lib.ui.widget.LoadMoreRecyclerView;
+import com.cabe.lib.ui.widget.LoadMoreRecyclerViewX;
 import com.cabe.lib.ui.widget.OnEndViewListener;
 import com.cabe.lib.ui.widget.OnLoadViewListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 /**
  * 作者：沈建芳 on 2019-05-16 16:01
  */
 public class MainActivity extends AppCompatActivity {
-    private LoadMoreRecyclerView recyclerView;
+    private LoadMoreRecyclerViewX recyclerView;
     private MyAdapter mMyAdapter = new MyAdapter();
     private int curPageIndex = 0;
     @Override

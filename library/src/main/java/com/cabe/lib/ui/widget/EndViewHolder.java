@@ -1,11 +1,12 @@
 package com.cabe.lib.ui.widget;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cabe.lib.ui.loadmore.R;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 作者：沈建芳 on 2019-05-18 16:53

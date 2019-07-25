@@ -3,20 +3,21 @@ package com.cabe.lib.ui.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cabe.lib.ui.loadmore.R;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 /**
  * 作者：沈建芳 on 2019-05-16 14:45
  */
-public class LoadMoreRecyclerView extends RecyclerView {
+public class LoadMoreRecyclerViewX extends RecyclerView {
     private final int VIEW_TYPE_LOAD = Integer.MIN_VALUE + 1;
     private final int VIEW_TYPE_END = Integer.MIN_VALUE + 2;
 
@@ -27,23 +28,23 @@ public class LoadMoreRecyclerView extends RecyclerView {
     private OnLoadViewListener onLoadViewListener;
     private RecyclerViewScrollCallback scrollCallback;
     private InnerAdapter innerAdapter = new InnerAdapter();
-    public LoadMoreRecyclerView(Context context) {
+    public LoadMoreRecyclerViewX(Context context) {
         this(context, null);
     }
 
-    public LoadMoreRecyclerView(Context context, @Nullable AttributeSet attrs) {
+    public LoadMoreRecyclerViewX(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public LoadMoreRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
+    public LoadMoreRecyclerViewX(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context, attrs, defStyle);
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadMoreRecyclerView, defStyleAttr, 0);
-        showEnd = a.getBoolean(R.styleable.LoadMoreRecyclerView_showEnd, true);
-        autoLoad = a.getBoolean(R.styleable.LoadMoreRecyclerView_autoLoad, true);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadMoreRecyclerViewX, defStyleAttr, 0);
+        showEnd = a.getBoolean(R.styleable.LoadMoreRecyclerViewX_showEnd, true);
+        autoLoad = a.getBoolean(R.styleable.LoadMoreRecyclerViewX_autoLoad, true);
         a.recycle();
 
         LayoutManager layoutManager = getLayoutManager();

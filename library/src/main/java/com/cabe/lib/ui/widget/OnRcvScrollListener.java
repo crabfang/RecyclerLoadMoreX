@@ -1,9 +1,10 @@
 package com.cabe.lib.ui.widget;
 
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 /**
  * RecyclerView Scroll Listener
@@ -13,7 +14,7 @@ public abstract class OnRcvScrollListener extends RecyclerView.OnScrollListener 
     protected boolean isScrollBottom;
 
     @Override
-    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+    public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
         super.onScrollStateChanged(recyclerView, newState);
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         boolean canScroll = recyclerCheckScroll(recyclerView);
