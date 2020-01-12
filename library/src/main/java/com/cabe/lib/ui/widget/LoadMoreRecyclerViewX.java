@@ -99,6 +99,7 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
         postDelayed(() -> {
             RecyclerView.LayoutManager layoutManager = getLayoutManager();
             Rect rect = new Rect();
+            assert layoutManager != null;
             int childPosition = layoutManager.getItemCount() > 1 ? layoutManager.getItemCount() - 2 : 0;
             View lastView = layoutManager.findViewByPosition(childPosition);
             if(lastView != null) {
