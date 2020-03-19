@@ -3,7 +3,6 @@
 buildscript {
     repositories {
         maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-        maven { url 'http://nexus.51.nb:8081/nexus/content/repositories/release/' }
         google()
         jcenter()
     }
@@ -11,7 +10,6 @@ buildscript {
         classpath "com.android.tools.build:gradle:${GRADLE_VERSION}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${KOTLIN_VERSION}"
         classpath 'com.novoda:bintray-release:0.9.1'
-        classpath "com.u51.android.plugin:gradle-nexus-plugin:1.1.8"
     }
 }
 
