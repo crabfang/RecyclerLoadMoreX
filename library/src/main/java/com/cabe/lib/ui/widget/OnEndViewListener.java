@@ -8,5 +8,5 @@ import android.view.ViewGroup;
  */
 public interface OnEndViewListener {
     View onCreateEndView(ViewGroup parent);
-    void onEndViewBind(View loadView);
+    void onEndViewBind(View endView);
 }

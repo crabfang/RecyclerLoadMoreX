@@ -3,9 +3,11 @@ package com.cabe.lib.ui.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.cabe.lib.ui.loadmore.R;
 
@@ -27,7 +29,12 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
     private OnEndViewListener onEndViewListener;
     private OnLoadViewListener onLoadViewListener;
     private RecyclerViewScrollCallback scrollCallback;
+    private OnChildComputeCallback childrenCallback;
     private InnerAdapter innerAdapter = new InnerAdapter();
+
+    private String loadTips = "";
+    private String endTips = "";
+
     public LoadMoreRecyclerViewX(Context context) {
         this(context, null);
     }
@@ -83,6 +90,18 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
         this.scrollCallback = scrollCallback;
     }
 
+    public void setOnChildrenCallback(OnChildComputeCallback childrenCallback) {
+        this.childrenCallback = childrenCallback;
+    }
+
+    public void setLoadTips(String loadTips) {
+        this.loadTips = loadTips;
+    }
+
+    public void setEndTips(String endTips) {
+        this.endTips = endTips;
+    }
+
     public void setAutoLoad(boolean autoLoad) {
         this.autoLoad = autoLoad;
     }
@@ -96,7 +115,10 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
     }
 
     private void judgeDataFullPage() {
+        if(!autoLoad) return;
+
         postDelayed(() -> {
+            boolean isEnough = true;
             RecyclerView.LayoutManager layoutManager = getLayoutManager();
             Rect rect = new Rect();
             assert layoutManager != null;
@@ -105,13 +127,20 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
             if(lastView != null) {
                 //lastView为空，表示没滚动到底
                 lastView.getGlobalVisibleRect(rect);
-                if(rect.bottom < getHeight()) {
+                if(rect.bottom <= layoutManager.getHeight() && !flagEnd) {
+                    isEnough = false;
                     if(scrollCallback != null) {
                         scrollCallback.onScrollToBottom();
                     }
                 }
             }
-        }, 400);
+            if(childrenCallback != null) {
+                isEnough = childrenCallback.isChildrenNotEnough(this);
+            }
+            if(!isEnough && scrollCallback != null) {
+                scrollCallback.onScrollToBottom();
+            }
+        }, 200);
     }
 
     @Override
@@ -216,6 +245,7 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
             if(position < getRealCount()) {
                 realAdapter.onBindViewHolder(holder, position);
             } else {
+                String customLabelStr = "";
                 if(holder instanceof LoadViewHolder) {
                     ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
                     if(params instanceof StaggeredGridLayoutManager.LayoutParams) {
@@ -224,9 +254,17 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
                     if(onLoadViewListener != null) {
                         onLoadViewListener.onLoadViewBind(holder.itemView);
                     }
+                    customLabelStr = loadTips;
                 } else if(holder instanceof EndViewHolder) {
                     if(onEndViewListener != null) {
                         onEndViewListener.onEndViewBind(holder.itemView);
+                    }
+                    customLabelStr = endTips;
+                }
+                if(!TextUtils.isEmpty(customLabelStr)) {
+                    TextView label = holder.itemView.findViewById(R.id.load_more_widget_bottom_end_label);
+                    if(label != null) {
+                        label.setText(customLabelStr);
                     }
                 }
             }
@@ -235,5 +273,8 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
 
     public interface RecyclerViewScrollCallback {
         void onScrollToBottom();
+    }
+    public interface OnChildComputeCallback {
+        boolean isChildrenNotEnough(LoadMoreRecyclerViewX recyclerView);
     }
 }
