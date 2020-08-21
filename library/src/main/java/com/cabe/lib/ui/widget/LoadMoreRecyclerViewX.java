@@ -197,6 +197,10 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
         super.setAdapter(innerAdapter);
     }
 
+    public int getItemCount() {
+        return innerAdapter.realAdapter.getItemCount();
+    }
+
     private class InnerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private RecyclerView.Adapter<RecyclerView.ViewHolder> realAdapter;
 
