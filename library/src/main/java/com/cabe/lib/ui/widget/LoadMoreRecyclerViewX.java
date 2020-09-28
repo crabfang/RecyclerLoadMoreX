@@ -20,8 +20,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
  * 作者：沈建芳 on 2019-05-16 14:45
  */
 public class LoadMoreRecyclerViewX extends RecyclerView {
-    private final int VIEW_TYPE_LOAD = Integer.MIN_VALUE + 1;
-    private final int VIEW_TYPE_END = Integer.MIN_VALUE + 2;
+    private final static int VIEW_TYPE_LOAD = Integer.MIN_VALUE + 1;
+    private final static int VIEW_TYPE_END = Integer.MIN_VALUE + 2;
 
     private boolean showEnd = true;
     private boolean autoLoad = true;
@@ -30,7 +30,7 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
     private OnLoadViewListener onLoadViewListener;
     private RecyclerViewScrollCallback scrollCallback;
     private OnChildComputeCallback childrenCallback;
-    private InnerAdapter innerAdapter = new InnerAdapter();
+    private ProxyAdapter proxyAdapter;
 
     private String loadTips = "";
     private String endTips = "";
@@ -49,6 +49,7 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
+        proxyAdapter = new ProxyAdapter(this);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadMoreRecyclerViewX, defStyleAttr, 0);
         showEnd = a.getBoolean(R.styleable.LoadMoreRecyclerViewX_showEnd, true);
         autoLoad = a.getBoolean(R.styleable.LoadMoreRecyclerViewX_autoLoad, true);
@@ -59,7 +60,7 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
             ((GridLayoutManager) layoutManager).setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    if(!flagEnd && position == innerAdapter.getItemCount() - 1) {
+                    if(!flagEnd && position == proxyAdapter.getItemCount() - 1) {
                         return ((GridLayoutManager) layoutManager).getSpanCount();
                     }
                     return 1;
@@ -145,68 +146,91 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
 
     @Override
     public void setAdapter(Adapter adapter) {
+        if(adapter == null) {
+            super.setAdapter(null);
+            return;
+        }
         RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
-                innerAdapter.notifyDataSetChanged();
+                proxyAdapter.notifyDataSetChanged();
                 judgeDataFullPage();
             }
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount) {
-                innerAdapter.notifyItemRangeChanged(positionStart, itemCount);
+                proxyAdapter.notifyItemRangeChanged(positionStart, itemCount);
                 judgeDataFullPage();
                 if(itemCount == 0) {
-                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                    proxyAdapter.notifyItemChanged(proxyAdapter.getItemCount() - 1);
                 }
             }
             @Override
             public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
-                innerAdapter.notifyItemRangeChanged(positionStart, itemCount, payload);
+                proxyAdapter.notifyItemRangeChanged(positionStart, itemCount, payload);
                 judgeDataFullPage();
                 if(itemCount == 0) {
-                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                    proxyAdapter.notifyItemChanged(proxyAdapter.getItemCount() - 1);
                 }
             }
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                innerAdapter.notifyItemRangeInserted(positionStart, itemCount);
+                proxyAdapter.notifyItemRangeInserted(positionStart, itemCount);
                 judgeDataFullPage();
                 if(itemCount == 0) {
-                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                    proxyAdapter.notifyItemChanged(proxyAdapter.getItemCount() - 1);
                 }
             }
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
-                innerAdapter.notifyItemRangeRemoved(positionStart, itemCount);
+                proxyAdapter.notifyItemRangeRemoved(positionStart, itemCount);
                 judgeDataFullPage();
                 if(itemCount == 0) {
-                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                    proxyAdapter.notifyItemChanged(proxyAdapter.getItemCount() - 1);
                 }
             }
             @Override
             public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-                innerAdapter.notifyItemMoved(fromPosition, toPosition);
+                proxyAdapter.notifyItemMoved(fromPosition, toPosition);
                 judgeDataFullPage();
                 if(itemCount == 0) {
-                    innerAdapter.notifyItemChanged(innerAdapter.getItemCount() - 1);
+                    proxyAdapter.notifyItemChanged(proxyAdapter.getItemCount() - 1);
                 }
             }
         };
         adapter.registerAdapterDataObserver(dataObserver);
-        innerAdapter.setRealAdapter(adapter);
-        super.setAdapter(innerAdapter);
+        proxyAdapter.setRealAdapter(adapter);
+        super.setAdapter(proxyAdapter);
+    }
+
+    public RecyclerView.Adapter<RecyclerView.ViewHolder> getRealAdapter() {
+        return proxyAdapter.realAdapter;
     }
 
     public int getItemCount() {
-        return innerAdapter.realAdapter.getItemCount();
+        return proxyAdapter.realAdapter.getItemCount();
     }
 
-    private class InnerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    public interface RecyclerViewScrollCallback {
+        void onScrollToBottom();
+    }
+    public interface OnChildComputeCallback {
+        boolean isChildrenNotEnough(LoadMoreRecyclerViewX recyclerView);
+    }
+    public static class ProxyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private LoadMoreRecyclerViewX recyclerViewX;
         private RecyclerView.Adapter<RecyclerView.ViewHolder> realAdapter;
+
+        public ProxyAdapter(LoadMoreRecyclerViewX recyclerViewX) {
+            this.recyclerViewX = recyclerViewX;
+        }
 
         private void setRealAdapter(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
             realAdapter = adapter;
             notifyDataSetChanged();
+        }
+
+        public RecyclerView.Adapter<RecyclerView.ViewHolder> getRealAdapter() {
+            return realAdapter;
         }
 
         private int getRealCount() {
@@ -215,7 +239,7 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
 
         @Override
         public int getItemCount() {
-            if(!autoLoad || (flagEnd && !showEnd)) {
+            if(!recyclerViewX.autoLoad || (recyclerViewX.flagEnd && !recyclerViewX.showEnd)) {
                 return getRealCount();
             }
             return getRealCount() == 0 ? 0 : getRealCount() + 1;
@@ -224,10 +248,10 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
         @Override
         public int getItemViewType(int position) {
             if(getRealCount() != getItemCount() && position == getRealCount()) {
-                if(!flagEnd) {
+                if(!recyclerViewX.flagEnd) {
                     return VIEW_TYPE_LOAD;
                 }
-                if(showEnd) {
+                if(recyclerViewX.showEnd) {
                     return VIEW_TYPE_END;
                 }
             }
@@ -237,9 +261,9 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             if(viewType == VIEW_TYPE_LOAD) {
-                return LoadViewHolder.createHolder(parent, onLoadViewListener);
+                return LoadViewHolder.createHolder(parent, recyclerViewX.onLoadViewListener);
             } else if(viewType == VIEW_TYPE_END) {
-                return EndViewHolder.createHolder(parent, onEndViewListener);
+                return EndViewHolder.createHolder(parent, recyclerViewX.onEndViewListener);
             }
             return realAdapter.onCreateViewHolder(parent, viewType);
         }
@@ -255,15 +279,15 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
                     if(params instanceof StaggeredGridLayoutManager.LayoutParams) {
                         ((StaggeredGridLayoutManager.LayoutParams) params).setFullSpan(true);
                     }
-                    if(onLoadViewListener != null) {
-                        onLoadViewListener.onLoadViewBind(holder.itemView);
+                    if(recyclerViewX.onLoadViewListener != null) {
+                        recyclerViewX.onLoadViewListener.onLoadViewBind(holder.itemView);
                     }
-                    customLabelStr = loadTips;
+                    customLabelStr = recyclerViewX.loadTips;
                 } else if(holder instanceof EndViewHolder) {
-                    if(onEndViewListener != null) {
-                        onEndViewListener.onEndViewBind(holder.itemView);
+                    if(recyclerViewX.onEndViewListener != null) {
+                        recyclerViewX.onEndViewListener.onEndViewBind(holder.itemView);
                     }
-                    customLabelStr = endTips;
+                    customLabelStr = recyclerViewX.endTips;
                 }
                 if(!TextUtils.isEmpty(customLabelStr)) {
                     TextView label = holder.itemView.findViewById(R.id.load_more_widget_bottom_end_label);
@@ -273,12 +297,5 @@ public class LoadMoreRecyclerViewX extends RecyclerView {
                 }
             }
         }
-    }
-
-    public interface RecyclerViewScrollCallback {
-        void onScrollToBottom();
-    }
-    public interface OnChildComputeCallback {
-        boolean isChildrenNotEnough(LoadMoreRecyclerViewX recyclerView);
     }
 }

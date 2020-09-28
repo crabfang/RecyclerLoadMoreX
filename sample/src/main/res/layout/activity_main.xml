@@ -6,6 +6,15 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
+	<com.cabe.lib.ui.widget.LoadMoreRecyclerViewX
+		android:id="@+id/activity_main_recycler_h"
+		android:layout_width="match_parent"
+		android:layout_height="100dp"
+		android:orientation="horizontal"
+		tools:listitem="@layout/item_layout_view_h"
+		tools:itemCount="10"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
 	<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 		android:id="@+id/activity_main_swipe"
 		android:layout_width="match_parent"

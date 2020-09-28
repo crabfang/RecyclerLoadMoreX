@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION as int
@@ -25,8 +27,9 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'androidx.appcompat:appcompat:1.0.0'
-    api 'androidx.recyclerview:recyclerview:1.0.0'
+    api 'androidx.appcompat:appcompat:1.2.0'
+    api 'androidx.recyclerview:recyclerview:1.1.0'
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${KOTLIN_VERSION}"
 }
 
 apply plugin: 'com.novoda.bintray-release'
