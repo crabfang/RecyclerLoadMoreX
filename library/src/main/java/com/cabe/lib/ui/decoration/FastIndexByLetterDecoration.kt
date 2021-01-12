@@ -5,12 +5,12 @@ import android.view.MotionEvent
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
-class FastIndexByLetterDecoration(val onLetterChange: (letter: String) -> Unit): RecyclerView.ItemDecoration() {
+class FastIndexByLetterDecoration(letters: List<String>? = null, val onLetterChange: (letter: String) -> Unit): RecyclerView.ItemDecoration() {
     private lateinit var boundRect: RectF
     private var preHeight = 0
     private var letterH = 0f
     private var floatTouchListener: MyTouchListener? = null
-    private val letterList = arrayListOf<String>().apply {
+    private val letterList = letters ?: arrayListOf<String>().apply {
         for (i in 0 until 26) {
             add(('a' + i).toString().toUpperCase(Locale.getDefault()))
         }
@@ -25,6 +25,7 @@ class FastIndexByLetterDecoration(val onLetterChange: (letter: String) -> Unit):
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         super.onDrawOver(c, parent, state)
         this.parent = parent
+
         if(letterH == 0f) letterH = dp2px(12f).toFloat()
 
         if(floatTouchListener != null) {
